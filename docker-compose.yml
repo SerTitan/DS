@@ -1,0 +1,33 @@
+services:
+  node:
+    build: .
+    image: distributed_node
+    environment:
+      - MODE=gossip
+      - STARTER=1
+    labels:
+      group: "1"
+    networks:
+      - multicast_net
+    deploy:
+      mode: replicated
+      replicas: 0
+    command: ["./distributed_node", "${MODE}"]
+
+  watchdog:
+    build: .
+    image: distributed_node_watchdog
+    environment:
+      - MODE=watchdog
+    labels:
+      is_watchdog: "true"
+    networks:
+      - multicast_net
+    command: ["./distributed_node", "watchdog"]
+
+networks:
+  multicast_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
